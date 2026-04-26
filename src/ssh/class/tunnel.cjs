@@ -1,3 +1,4 @@
+const { setTimeout } = require("node:timers");
 const { spawn } = require('node:child_process');
 const TunnelSession = require("./tunnelSession.cjs");
 const { default: config } = require('../../config.mjs');
@@ -42,7 +43,7 @@ module.exports = class {
 			console.log(`\n${this.name} tunnel exited with code ${code ?? "KILL"}`);
 
 			if (code !== null && this.reconnect) {
-				window.setTimeout(() => this.#spawn(), config.ssh.retryDelay);
+				setTimeout(() => this.#spawn(), config.ssh.retryDelay);
 			}
 		});
 	}
