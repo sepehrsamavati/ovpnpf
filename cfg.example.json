@@ -1,0 +1,19 @@
+{
+    "tempDir": "./tmp",
+    "openVpn": {
+        "executablePath": "C:\\Program Files\\OpenVPN\\bin\\openvpn.exe",
+        "username": "",
+        "passwordOrOtpSecret": "[otpauth://...] OR [password]",
+        "configFullPath": "C:..\\cfg.ovpn"
+    },
+    "ssh": {
+        "username": "",
+        "hostname": "",
+        "port": 22,
+        "localPort": 0,
+        "localInterface": "0.0.0.0",
+        "destinationAddress": "",
+        "remotePort": 0,
+        "retryDelay": 1000
+    }
+}

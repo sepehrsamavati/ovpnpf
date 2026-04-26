@@ -1,0 +1,17 @@
+{
+  "name": "ovpnpf-auto-connect",
+  "version": "1.0.0",
+  "description": "OpenVPN + SSH Local Port Forward + Auto connect",
+  "main": "index.js",
+  "scripts": {
+    "ovpn": "node ./src/ovpn.mjs",
+    "ssht": "node ./src/ssh/app.cjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "otplib": "^13.4.0"
+  }
+}
