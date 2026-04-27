@@ -3,10 +3,10 @@ const { default: config } = require("../config.mjs");
 const tunnels = [
 	{
 		name: "Bridge", // optional name for connection
-		sshPort: 22, // default 22
+		sshPort: config.ssh.port, // default 22
 		user: config.ssh.username,
 		host: config.ssh.hostname,
-		aliveInterval: config.ssh.port,
+		aliveInterval: 20,
 		exitOnFail: true,
 		reconnect: true,
 		forward: { // use 'forwards' array for multiple forward
