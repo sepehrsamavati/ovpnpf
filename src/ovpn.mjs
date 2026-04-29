@@ -37,7 +37,8 @@ async function startVPN() {
             "--config",
             configPath,
             "--auth-user-pass",
-            authFile
+            authFile,
+            ...(config.openVpn.shaper ? ["--shaper", config.openVpn.shaper.toString()] : [])
         ]
     );
 

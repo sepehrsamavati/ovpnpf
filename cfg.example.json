@@ -4,7 +4,8 @@
         "executablePath": "C:\\Program Files\\OpenVPN\\bin\\openvpn.exe",
         "username": "",
         "passwordOrOtpSecret": "[otpauth://...] OR [password]",
-        "configFullPath": "C:..\\cfg.ovpn"
+        "configFullPath": "C:..\\cfg.ovpn",
+        "shaper": 0
     },
     "ssh": {
         "username": "",
