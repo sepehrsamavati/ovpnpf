@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import config from './config.mjs';
 import { generateCode } from './util/otp.mjs';
+import { parentPort } from "node:worker_threads";
 
 const configPath = config.openVpn.configFullPath;
 
@@ -48,12 +49,15 @@ async function startVPN() {
 
     vpnProcess.stdout.on("data", (data) => {
         const text = data.toString();
-        console.log(text);
+        process.stdout.write(`OVPN >_ `);
+        process.stdout.write(data);
 
         if (text.includes("Initialization Sequence Completed")) {
             console.log("✅ VPN connected");
             deleteAuthFile();
             retryCount = 0; // reset on success
+
+            parentPort?.postMessage("connected");
         }
 
         if (text.includes("AUTH_FAILED")) {
@@ -68,6 +72,7 @@ async function startVPN() {
 
     vpnProcess.on("close", (code) => {
         console.log(`⚠️ VPN exited with code: ${code}`);
+        parentPort?.postMessage("disconnected");
 
         // cleanup();
 
@@ -94,6 +99,13 @@ process.on("SIGINT", () => {
     console.log("🛑 Stopping VPN...");
     if (vpnProcess) vpnProcess.kill("SIGTERM");
     process.exit();
+});
+
+parentPort?.on("message", message => {
+    switch (message) {
+        case "exit":
+            vpnProcess?.kill("SIGTERM");
+    }
 });
 
 startVPN();
