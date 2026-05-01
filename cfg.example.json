@@ -5,7 +5,11 @@
         "username": "",
         "passwordOrOtpSecret": "[otpauth://...] OR [password]",
         "configFullPath": "C:..\\cfg.ovpn",
-        "shaper": 0
+        "shaper": 0,
+        "trafficUsage": {
+            "monitor": false,
+            "keepLog": true
+        }
     },
     "ssh": {
         "username": "",
