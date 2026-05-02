@@ -6,6 +6,7 @@
         "passwordOrOtpSecret": "[otpauth://...] OR [password]",
         "configFullPath": "C:..\\cfg.ovpn",
         "shaper": 0,
+        "showOutput": false,
         "trafficUsage": {
             "monitor": false,
             "keepLog": true
@@ -19,6 +20,7 @@
         "localInterface": "0.0.0.0",
         "destinationAddress": "",
         "remotePort": 0,
-        "retryDelay": 1000
+        "retryDelay": 1000,
+        "showOutput": false
     }
 }
