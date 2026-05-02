@@ -7,12 +7,14 @@ import { spawn } from 'child_process';
 import setDhcp from '../util/setDhcp.mjs';
 import { generateCode } from '../util/otp.mjs';
 import formatBytes from '../util/formatBytes.mjs';
+import ConfigurableStdOut from '../common/ConfigurableStdOut.mjs';
 
 export default class OpenVpnTunnel {
     static MAX_RETRIES = 15;
     static RECONNECT_DELAY = 3000;
 
     static logger = console;
+    stdout = new ConfigurableStdOut().set(config.openVpn.showOutput);
 
     static #resetDhcp() {
         return Promise.all(
@@ -151,8 +153,8 @@ export default class OpenVpnTunnel {
 
         this.#vpnProcess.stdout.on("data", (data) => {
             const text = data.toString();
-            process.stdout.write(`OVPN >_ `);
-            process.stdout.write(data);
+            this.stdout.write(`OVPN >_ `);
+            this.stdout.write(data);
 
             if (text.includes("Initialization Sequence Completed")) {
                 OpenVpnTunnel.logger.log("✅ VPN connected");

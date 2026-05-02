@@ -54,6 +54,7 @@ const connectSsh = () => {
     sshThread.on("message", message => {
         if (message === "connected") {
             isConnected = true;
+            console.log("Connected ✅");
             const title = "Connected ✅";
             setConsoleTitle(title);
 

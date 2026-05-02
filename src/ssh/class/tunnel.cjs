@@ -3,6 +3,7 @@ const { spawn } = require('node:child_process');
 const TunnelSession = require("./tunnelSession.cjs");
 const { parentPort } = require("node:worker_threads");
 const { default: config } = require('../../config.mjs');
+const { default: ConfigurableStdOut } = require("../../common/ConfigurableStdOut.mjs");
 
 let counter = 0;
 
@@ -21,6 +22,7 @@ module.exports = class {
 
 		this.#spawn();
 	}
+	stdout = new ConfigurableStdOut().set(config.ssh.showOutput);
 
 	#spawn() {
 		console.log(`Spawning ${this.name} SSH...`);
@@ -29,8 +31,8 @@ module.exports = class {
 	}
 
 	#logger(data) {
-		process.stdout.write(`${this.name} >_ `);
-		process.stdout.write(data);
+		this.stdout.write(`${this.name} >_ `);
+		this.stdout.write(data);
 		if (!this.connected && data.toString().split('\n')[0].startsWith("debug1: Entering interactive session.")) {
 			this.connected = true;
 			parentPort?.postMessage("connected");
