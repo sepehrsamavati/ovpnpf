@@ -1,12 +1,14 @@
 const { setTimeout } = require("node:timers");
 const { spawn } = require('node:child_process');
 const TunnelSession = require("./tunnelSession.cjs");
+const { parentPort } = require("node:worker_threads");
 const { default: config } = require('../../config.mjs');
 
 let counter = 0;
 
 module.exports = class {
 	constructor(tunnel) {
+		this.connected = false;
 		this.number = ++counter;
 		this.params = new TunnelSession(tunnel).params;
 		this.reconnect = Boolean(tunnel.reconnect);
@@ -29,6 +31,10 @@ module.exports = class {
 	#logger(data) {
 		process.stdout.write(`${this.name} >_ `);
 		process.stdout.write(data);
+		if (!this.connected && data.toString().split('\n')[0].startsWith("debug1: Entering interactive session.")) {
+			this.connected = true;
+			parentPort?.postMessage("connected");
+		}
 	}
 
 	#initEvents() {

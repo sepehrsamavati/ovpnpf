@@ -12,7 +12,4 @@ if %errorLevel% neq 0 (
 
 echo Running as admin
 
-start "OpenVPN (Auto connect)" node "%~dp0src\ovpn.mjs"
-echo Waiting for OVPN
-timeout /t 5 /nobreak >nul
-start "Local Port forward SSH tunnel" node "%~dp0src\ssh\app.cjs"
+start "OpenVPN + Port Forward (Auto connect)" node "%~dp0src\ovpnWithSsh.mjs"
