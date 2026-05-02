@@ -80,6 +80,7 @@ const connectOvpn = async () => {
     closeSsh();
 
     if (ovpnTun) {
+        ovpnTun.onDisconnected = null;
         console.info('ℹ️ Closing previous OVPN...');
         ovpnTun.terminateProcess();
         ovpnTun.dispose();
@@ -97,6 +98,7 @@ const connectOvpn = async () => {
     ovpnTun.onDisconnected = () => {
         closeSsh();
         setConsoleTitle("⚠️ OpenVPN disconnected 🔴");
+        connectOvpn();
     };
 
     await ovpnTun.startVPN();
