@@ -4,9 +4,9 @@ import fs from 'fs';
 import path from 'path';
 import config from '../config.mjs';
 import { spawn } from 'child_process';
+import setDhcp from '../util/setDhcp.mjs';
 import { generateCode } from '../util/otp.mjs';
 import formatBytes from '../util/formatBytes.mjs';
-import setDhcp from '../util/setDhcp.mjs';
 
 export default class OpenVpnTunnel {
     static MAX_RETRIES = 15;
@@ -15,13 +15,16 @@ export default class OpenVpnTunnel {
     static logger = console;
 
     static #resetDhcp() {
-        setDhcp("OpenVPN Data Channel Offload")
-            .then(console.log)
-            .catch(console.error);
-
-        setDhcp("OpenVPN Connect DCO Adapter")
-            .then(console.log)
-            .catch(console.error);
+        return Promise.all(
+            [
+                setDhcp("OpenVPN Data Channel Offload")
+                    .then(console.log)
+                    .catch(console.error),
+                setDhcp("OpenVPN Connect DCO Adapter")
+                    .then(console.log)
+                    .catch(console.error),
+            ]
+        );
     }
 
     /**
@@ -55,7 +58,13 @@ export default class OpenVpnTunnel {
         };
     }
 
-    constructor() {
+    /**
+     * 
+     * @param {{ autoRetry?: boolean; }} opts 
+     */
+    constructor(opts = {}) {
+        /** @type {typeof opts} */
+        this.opts = opts;
         process.on("SIGINT", () => {
             this.dispose();
             console.log("🛑 Stopping VPN...");
@@ -118,7 +127,7 @@ export default class OpenVpnTunnel {
     async startVPN() {
         OpenVpnTunnel.logger.log(`🔄 Starting VPN (attempt ${this.#retryCount + 1})`);
 
-        OpenVpnTunnel.#resetDhcp();
+        await OpenVpnTunnel.#resetDhcp();
 
         const username = config.openVpn.username;
         const password = config.openVpn.passwordOrOtpSecret.startsWith('otpauth://') ? await generateCode(config.openVpn.passwordOrOtpSecret) : config.openVpn.passwordOrOtpSecret;
@@ -167,7 +176,7 @@ export default class OpenVpnTunnel {
             OpenVpnTunnel.logger.log(`⚠️ VPN exited with code: ${code}`);
             this.onDisconnected?.();
 
-            // cleanup();
+            if (!this.opts.autoRetry) return;
 
             if (this.#retryCount < OpenVpnTunnel.MAX_RETRIES) {
                 this.#retryCount++;

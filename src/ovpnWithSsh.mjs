@@ -86,7 +86,7 @@ const connectOvpn = async () => {
         await new Promise(r => setTimeout(r, 2e3));
     }
 
-    ovpnTun ??= new OpenVpnTunnel();
+    ovpnTun ??= new OpenVpnTunnel({ autoRetry: false });
 
     ovpnTun.onConnected = () => {
         setConsoleTitle("OpenVPN connected, connecting SSH... 🔵");
