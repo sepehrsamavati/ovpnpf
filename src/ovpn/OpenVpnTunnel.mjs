@@ -33,7 +33,7 @@ export default class OpenVpnTunnel {
     /**
      * @param {string} filePath
      */
-    static #parseOpenVpnStatus(filePath) {
+    static parseOpenVpnStatus(filePath) {
         const text = fs.readFileSync(filePath, "utf8");
 
         if (!text.includes("END")) {
@@ -87,7 +87,7 @@ export default class OpenVpnTunnel {
     onDisconnected = null;
 
     getVpnUsage() {
-        const usage = OpenVpnTunnel.#parseOpenVpnStatus(this.#statusLogFilePath);
+        const usage = OpenVpnTunnel.parseOpenVpnStatus(this.#statusLogFilePath);
 
         if (!usage)
             return null;

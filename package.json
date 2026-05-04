@@ -4,7 +4,8 @@
   "description": "OpenVPN + SSH Local Port Forward + Auto connect",
   "scripts": {
     "ovpn": "node ./src/ovpnWithSsh.mjs",
-    "ssht": "node ./src/ssh/app.cjs"
+    "ssht": "node ./src/ssh/app.cjs",
+    "usage": "node ./src/scripts/calculateOvpnUsage.mjs"
   },
   "keywords": [],
   "author": "",
