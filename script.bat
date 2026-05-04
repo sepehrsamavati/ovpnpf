@@ -12,4 +12,5 @@ if %errorLevel% neq 0 (
 
 echo Running as admin
 
-start "OpenVPN + Port Forward (Auto connect)" node "%~dp0src\ovpnWithSsh.mjs"
+start "OpenVPN + Port Forward (Auto connect)" cmd /k ^
+node "%~dp0src\ovpnWithSsh.mjs"
