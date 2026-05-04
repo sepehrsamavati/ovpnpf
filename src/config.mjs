@@ -142,7 +142,7 @@ fs.watch(configFilePath, (eventType) => {
             logger?.error("Invalid config update:", err instanceof Error ? err.message : err);
         }
     }, 300);
-});
+}).unref();
 
 /**
  * 
