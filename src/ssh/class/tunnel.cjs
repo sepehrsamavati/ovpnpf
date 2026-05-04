@@ -2,13 +2,14 @@ const { setTimeout } = require("node:timers");
 const { spawn } = require('node:child_process');
 const TunnelSession = require("./tunnelSession.cjs");
 const { parentPort } = require("node:worker_threads");
-const { default: config } = require('../../config.mjs');
+const { default: config, addConfigChangeListener } = require('../../config.mjs');
 const { default: ConfigurableStdOut } = require("../../common/ConfigurableStdOut.mjs");
+const { default: consoleWithTimestamp } = require("../../common/consoleWithTimestamp.mjs");
 
 let counter = 0;
 
-module.exports = class Tunnel {
-	static logger = console;
+class Tunnel {
+	static logger = consoleWithTimestamp;
 
 	constructor(tunnel) {
 		this.connected = false;
@@ -16,6 +17,10 @@ module.exports = class Tunnel {
 		this.params = new TunnelSession(tunnel).params;
 		this.reconnect = Boolean(tunnel.reconnect);
 		this.name = tunnel.name ?? `SSH #${this.number}`;
+
+		addConfigChangeListener(() => {
+			this.stdout.set(config.ssh.showOutput);
+		});
 
 		process.on("SIGINT", () => {
 			if (this.cp)
@@ -58,3 +63,5 @@ module.exports = class Tunnel {
 		});
 	}
 };
+
+module.exports = Tunnel;

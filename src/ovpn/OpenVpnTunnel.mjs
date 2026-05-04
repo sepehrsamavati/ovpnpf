@@ -2,18 +2,19 @@
 
 import fs from 'fs';
 import path from 'path';
-import config from '../config.mjs';
+import config, { addConfigChangeListener } from '../config.mjs';
 import { spawn } from 'child_process';
 import setDhcp from '../util/setDhcp.mjs';
 import { generateCode } from '../util/otp.mjs';
 import formatBytes from '../util/formatBytes.mjs';
 import ConfigurableStdOut from '../common/ConfigurableStdOut.mjs';
+import consoleWithTimestamp from '../common/consoleWithTimestamp.mjs';
 
 export default class OpenVpnTunnel {
     static MAX_RETRIES = 15;
     static RECONNECT_DELAY = 3000;
 
-    static logger = console;
+    static logger = consoleWithTimestamp;
     stdout = new ConfigurableStdOut().set(config.openVpn.showOutput);
 
     static #resetDhcp() {
@@ -72,6 +73,10 @@ export default class OpenVpnTunnel {
             console.log("🛑 Stopping VPN...");
             if (this.#vpnProcess) this.#vpnProcess.kill("SIGTERM");
             process.exit();
+        });
+
+        addConfigChangeListener(() => {
+            this.stdout.set(config.openVpn.showOutput);
         });
     }
 

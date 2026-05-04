@@ -2,7 +2,6 @@
 
 import path from "node:path";
 import config from "./config.mjs";
-// import Tunnel from "./ssh/class/tunnel.cjs";
 import { Worker } from "node:worker_threads";
 import OpenVpnTunnel from "./ovpn/OpenVpnTunnel.mjs";
 import { setInterval, clearInterval } from "node:timers";
@@ -11,9 +10,6 @@ import consoleWithTimestamp from "./common/consoleWithTimestamp.mjs";
 const logger = consoleWithTimestamp;
 const __dirname = import.meta.dirname;
 const SSH_PATH = path.join(__dirname, "ssh", "app.cjs");
-
-// Tunnel.logger = logger;
-OpenVpnTunnel.logger = logger;
 
 /**
  * 

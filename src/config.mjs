@@ -1,10 +1,16 @@
 // @ts-check
 import fs from "node:fs";
+import timers from "node:timers";
+import { parentPort } from "node:worker_threads";
 import { isValidPort } from "./util/validations.mjs";
 import { assertBoolean, assertNumber, assertObject, assertString } from "./util/asserts.mjs";
 
 /**
- * @param {import("./types/config").IAppConfig} cfg
+ * @typedef {import("./types/config").IAppConfig} IAppConfig
+ */
+
+/**
+ * @param {IAppConfig} cfg
  */
 function validateConfig(cfg) {
     assertObject(cfg, "config");
@@ -84,24 +90,66 @@ function validateConfig(cfg) {
 }
 
 const configFilePath = "./cfg.json";
-/** @type {import("./types/config").IAppConfig} */
-let config = JSON.parse(fs.readFileSync(configFilePath).toString());
+/** @type {IAppConfig} */
+let _config = JSON.parse(fs.readFileSync(configFilePath).toString());
+const logger = parentPort === null ? console : null; // no logger in threads
 
-// run validation once at startup
-validateConfig(config);
-
-fs.mkdirSync(config.tempDir, { recursive: true });
-
-// optional: revalidate on change (this is actually very useful)
-fs.watchFile(configFilePath, () => {
-    try {
-        const updated = JSON.parse(fs.readFileSync(configFilePath, "utf-8"));
-        validateConfig(updated);
-        config = updated;
-        console.log("Config reloaded & valid");
-    } catch (err) {
-        console.error("Invalid config update:", err instanceof Error ? err.message : err);
+/** @type {IAppConfig} */
+const config = new Proxy(/** @type {IAppConfig} */({}), {
+    get(_, prop) {
+        return _config[/** @type {keyof IAppConfig} */ (prop)];
+    },
+    set(_, prop, value) {
+        _config[/** @type {keyof IAppConfig} */ (prop)] = value;
+        return true;
+    },
+    has(_, prop) {
+        return prop in _config;
+    },
+    ownKeys() {
+        return Reflect.ownKeys(_config);
+    },
+    getOwnPropertyDescriptor(_, prop) {
+        return Object.getOwnPropertyDescriptor(_config, prop);
     }
 });
+
+/** @type {Set<() => void>} */
+const configChangeListeners = new Set();
+
+// run validation once at startup
+validateConfig(_config);
+
+fs.mkdirSync(_config.tempDir, { recursive: true });
+
+/** @type {?NodeJS.Timeout} */
+let timeout = null;
+fs.watch(configFilePath, (eventType) => {
+
+    if (eventType !== "change") return;
+
+    if (timeout)
+        timers.clearTimeout(timeout);
+
+    timeout = timers.setTimeout(() => {
+        try {
+            const updated = JSON.parse(fs.readFileSync(configFilePath, "utf-8"));
+            validateConfig(updated);
+            _config = updated;
+            configChangeListeners.forEach(cb => cb());
+            logger?.log("Config reloaded & valid");
+        } catch (err) {
+            logger?.error("Invalid config update:", err instanceof Error ? err.message : err);
+        }
+    }, 300);
+});
+
+/**
+ * 
+ * @param {() => void} cb 
+ */
+export const addConfigChangeListener = (cb) => {
+    configChangeListeners.add(cb);
+};
 
 export default config;
