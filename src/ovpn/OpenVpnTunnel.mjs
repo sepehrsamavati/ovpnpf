@@ -2,7 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import config, { addConfigChangeListener } from '../config.mjs';
+import config, { addConfigChangeListener } from '../common/config.mjs';
 import { spawn } from 'child_process';
 import setDhcp from '../util/setDhcp.mjs';
 import { generateCode } from '../util/otp.mjs';

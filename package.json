@@ -3,14 +3,14 @@
   "version": "1.2.0",
   "description": "OpenVPN + SSH Local Port Forward + Auto connect",
   "scripts": {
-    "ovpn": "node ./src/ovpnWithSsh.mjs",
-    "ssht": "node ./src/ssh/app.cjs",
+    "ovpn": "node ./src/scripts/ovpnWithSsh.mjs",
+    "ssht": "node ./src/scripts/sshApp.mjs",
     "usage": "node ./src/scripts/calculateOvpnUsage.mjs"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "license": "MIT",
+  "type": "module",
   "dependencies": {
     "otplib": "^13.4.0"
   }

@@ -2,7 +2,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import config from "../config.mjs";
+import config from "../common/config.mjs";
 import formatBytes from "../util/formatBytes.mjs";
 import OpenVpnTunnel from "../ovpn/OpenVpnTunnel.mjs";
 

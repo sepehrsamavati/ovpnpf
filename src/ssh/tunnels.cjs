@@ -1,4 +1,6 @@
-const { default: config } = require("../config.mjs");
+// @ts-check
+
+const { default: config } = require("../common/config.mjs");
 
 const tunnels = [
 	{

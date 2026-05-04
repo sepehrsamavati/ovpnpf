@@ -2,11 +2,11 @@
 import fs from "node:fs";
 import timers from "node:timers";
 import { parentPort } from "node:worker_threads";
-import { isValidPort } from "./util/validations.mjs";
-import { assertBoolean, assertNumber, assertObject, assertString } from "./util/asserts.mjs";
+import { isValidPort } from "../util/validations.mjs";
+import { assertBoolean, assertNumber, assertObject, assertString } from "../util/asserts.mjs";
 
 /**
- * @typedef {import("./types/config").IAppConfig} IAppConfig
+ * @typedef {import("../types/config").IAppConfig} IAppConfig
  */
 
 /**

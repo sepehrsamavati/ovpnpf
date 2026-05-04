@@ -2,7 +2,7 @@ const { setTimeout } = require("node:timers");
 const { spawn } = require('node:child_process');
 const TunnelSession = require("./tunnelSession.cjs");
 const { parentPort } = require("node:worker_threads");
-const { default: config, addConfigChangeListener } = require('../../config.mjs');
+const { default: config, addConfigChangeListener } = require('../../common/config.mjs');
 const { default: ConfigurableStdOut } = require("../../common/ConfigurableStdOut.mjs");
 const { default: consoleWithTimestamp } = require("../../common/consoleWithTimestamp.mjs");
 

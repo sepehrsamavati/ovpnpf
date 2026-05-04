@@ -1,15 +1,15 @@
 // @ts-check
 
 import path from "node:path";
-import config from "./config.mjs";
+import config from "../common/config.mjs";
 import { Worker } from "node:worker_threads";
-import OpenVpnTunnel from "./ovpn/OpenVpnTunnel.mjs";
+import OpenVpnTunnel from "../ovpn/OpenVpnTunnel.mjs";
 import { setInterval, clearInterval } from "node:timers";
-import consoleWithTimestamp from "./common/consoleWithTimestamp.mjs";
+import consoleWithTimestamp from "../common/consoleWithTimestamp.mjs";
 
 const logger = consoleWithTimestamp;
 const __dirname = import.meta.dirname;
-const SSH_PATH = path.join(__dirname, "ssh", "app.cjs");
+const SSH_PATH = path.join(__dirname, "..", "ssh", "app.cjs");
 
 /**
  * 
@@ -47,7 +47,8 @@ const connectSsh = () => {
 
     sshThread = new Worker(SSH_PATH);
 
-    sshThread.once("error", () => {
+    sshThread.once("error", (err) => {
+        console.log(err)
         isConnected = false;
         setConsoleTitle("SSH disconnected 🔴");
         connectSsh();
