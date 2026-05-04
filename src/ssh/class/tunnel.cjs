@@ -7,7 +7,9 @@ const { default: ConfigurableStdOut } = require("../../common/ConfigurableStdOut
 
 let counter = 0;
 
-module.exports = class {
+module.exports = class Tunnel {
+	static logger = console;
+
 	constructor(tunnel) {
 		this.connected = false;
 		this.number = ++counter;
@@ -25,7 +27,7 @@ module.exports = class {
 	stdout = new ConfigurableStdOut().set(config.ssh.showOutput);
 
 	#spawn() {
-		console.log(`Spawning ${this.name} SSH...`);
+		Tunnel.logger.log(`Spawning ${this.name} SSH...`);
 		this.cp = spawn("ssh", this.params);
 		this.#initEvents();
 	}
@@ -48,7 +50,7 @@ module.exports = class {
 		cp.stdout.on('data', data => this.#logger(data));
 
 		cp.on('exit', (code) => {
-			console.log(`\n${this.name} tunnel exited with code ${code ?? "KILL"}`);
+			Tunnel.logger.log(`\n${this.name} tunnel exited with code ${code ?? "KILL"}`);
 
 			if (code !== null && this.reconnect) {
 				setTimeout(() => this.#spawn(), config.ssh.retryDelay);

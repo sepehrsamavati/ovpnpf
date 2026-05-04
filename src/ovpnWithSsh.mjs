@@ -2,12 +2,18 @@
 
 import path from "node:path";
 import config from "./config.mjs";
+// import Tunnel from "./ssh/class/tunnel.cjs";
 import { Worker } from "node:worker_threads";
 import OpenVpnTunnel from "./ovpn/OpenVpnTunnel.mjs";
 import { setInterval, clearInterval } from "node:timers";
+import consoleWithTimestamp from "./common/consoleWithTimestamp.mjs";
 
+const logger = consoleWithTimestamp;
 const __dirname = import.meta.dirname;
 const SSH_PATH = path.join(__dirname, "ssh", "app.cjs");
+
+// Tunnel.logger = logger;
+OpenVpnTunnel.logger = logger;
 
 /**
  * 
@@ -34,9 +40,9 @@ let sshThread = null,
 const closeSsh = () => {
     isConnected = false;
     if (sshThread) {
-        console.info('ℹ️ Terminating previous SSH and continue...');
+        logger.info('ℹ️ Terminating previous SSH and continue...');
         sshThread.removeAllListeners();
-        sshThread.terminate().then(() => console.info('ℹ️ SSH terminated ✅')).catch(() => null);
+        sshThread.terminate().then(() => logger.info('ℹ️ SSH terminated ✅')).catch(() => null);
         sshThread = null;
     }
 };
@@ -54,7 +60,7 @@ const connectSsh = () => {
     sshThread.on("message", message => {
         if (message === "connected") {
             isConnected = true;
-            console.log("Connected ✅");
+            logger.log("Connected ✅");
             const title = "Connected ✅";
             setConsoleTitle(title);
 
@@ -81,10 +87,10 @@ const connectOvpn = async () => {
 
     if (ovpnTun) {
         ovpnTun.onDisconnected = null;
-        console.info('ℹ️ Closing previous OVPN...');
+        logger.info('ℹ️ Closing previous OVPN...');
         ovpnTun.terminateProcess();
         ovpnTun.dispose();
-        console.info('ℹ️ OVPN closed ✅');
+        logger.info('ℹ️ OVPN closed ✅');
         await new Promise(r => setTimeout(r, 2e3));
     }
 
@@ -113,7 +119,7 @@ process.stdin.on('data', (key) => {
     if (key === '\x12') {
         setConsoleTitle("Reconnecting... 🔵");
         isConnected = false;
-        console.clear();
+        logger.clear();
         connectOvpn();
     }
 
