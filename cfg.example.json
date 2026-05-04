@@ -8,7 +8,7 @@
         "shaper": 0,
         "showOutput": false,
         "trafficUsage": {
-            "monitor": false,
+            "monitor": true,
             "keepLog": true
         }
     },
