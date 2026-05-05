@@ -12,6 +12,8 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "otplib": "^13.4.0"
+    "base32.js": "^0.1.0",
+    "otplib": "^13.4.0",
+    "protobufjs": "^8.0.3"
   }
 }

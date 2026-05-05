@@ -1,6 +1,7 @@
 // @ts-check
 
 import * as authenticator from 'otplib';
+import { parseMigrationUri } from './parseMigrationUri.mjs';
 
 /**
  * 
@@ -8,6 +9,12 @@ import * as authenticator from 'otplib';
  * @returns 
  */
 export async function generateCode(otpAuth) {
+
+    if (otpAuth.startsWith("otpauth-migration://offline?data=")) {
+        const extractedOtpAuth = (await parseMigrationUri(otpAuth)).at(0);
+        if (!extractedOtpAuth) throw new Error("Failed to decode 'OTP Auth Migration'.");
+        otpAuth = extractedOtpAuth;
+    }
 
     // Parse the URL
     const url = new URL(otpAuth);
@@ -23,9 +30,8 @@ export async function generateCode(otpAuth) {
     const token = await authenticator.generate({
         secret: secret,
         digits: digits ? parseInt(digits) : 6,
-        step: period ? parseInt(period) : 30,
-        // @ts-ignore
-        algorithm: algorithm ? algorithm.toLowerCase() : 'sha1',
+        period: period ? parseInt(period) : 30,
+        algorithm: algorithm ? /** @type {authenticator.HashAlgorithm} */ (algorithm.toLowerCase()) : 'sha1',
     });
 
     return token;
