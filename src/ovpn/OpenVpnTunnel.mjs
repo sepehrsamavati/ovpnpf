@@ -131,13 +131,24 @@ export default class OpenVpnTunnel {
         this.#vpnProcess?.kill("SIGTERM");
     }
 
+    async #getPassword() {
+        if (
+            config.openVpn.passwordOrOtpSecret.startsWith('otpauth://')
+            || config.openVpn.passwordOrOtpSecret.startsWith('otpauth-migration://offline?data=')
+        ) {
+            return await generateCode(config.openVpn.passwordOrOtpSecret);
+        }
+
+        return config.openVpn.passwordOrOtpSecret;
+    }
+
     async startVPN() {
         OpenVpnTunnel.logger.log(`🔄 Starting VPN (attempt ${this.#retryCount + 1})`);
 
         await OpenVpnTunnel.#resetDhcp();
 
         const username = config.openVpn.username;
-        const password = config.openVpn.passwordOrOtpSecret.startsWith('otpauth://') ? await generateCode(config.openVpn.passwordOrOtpSecret) : config.openVpn.passwordOrOtpSecret;
+        const password = await this.#getPassword();
         fs.writeFileSync(this.#authFilePath, `${username}\n${password}\n`, { mode: 0o600 });
 
         this.#vpnProcess = spawn(
