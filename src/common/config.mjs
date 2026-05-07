@@ -3,6 +3,7 @@ import fs from "node:fs";
 import timers from "node:timers";
 import { parentPort } from "node:worker_threads";
 import { isValidPort } from "../util/validations.mjs";
+import consoleWithTimestamp from "./consoleWithTimestamp.mjs";
 import { assertBoolean, assertNumber, assertObject, assertString } from "../util/asserts.mjs";
 
 /**
@@ -92,7 +93,7 @@ function validateConfig(cfg) {
 const configFilePath = "./cfg.json";
 /** @type {IAppConfig} */
 let _config = JSON.parse(fs.readFileSync(configFilePath).toString());
-const logger = parentPort === null ? console : null; // no logger in threads
+const logger = parentPort === null ? consoleWithTimestamp : null; // no logger in threads
 
 /** @type {IAppConfig} */
 const config = new Proxy(/** @type {IAppConfig} */({}), {
@@ -137,9 +138,9 @@ fs.watch(configFilePath, (eventType) => {
             validateConfig(updated);
             _config = updated;
             configChangeListeners.forEach(cb => cb());
-            logger?.log("Config reloaded & valid");
+            logger?.log("🔄 Config reloaded & valid ✅");
         } catch (err) {
-            logger?.error("Invalid config update:", err instanceof Error ? err.message : err);
+            logger?.error("⚠️ Invalid config update:", err instanceof Error ? err.message : err);
         }
     }, 300);
 }).unref();
