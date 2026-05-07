@@ -55,7 +55,7 @@ class Tunnel {
 		cp.stdout.on('data', data => this.#logger(data));
 
 		cp.on('exit', (code) => {
-			Tunnel.logger.log(`\n${this.name} tunnel exited with code ${code ?? "KILL"}`);
+			Tunnel.logger.log(`❌ ${this.name} tunnel exited with code ${code ?? "KILL"}`);
 
 			if (code !== null && this.reconnect) {
 				setTimeout(() => this.#spawn(), config.ssh.retryDelay);
