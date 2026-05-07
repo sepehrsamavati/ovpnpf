@@ -21,10 +21,10 @@ export default class OpenVpnTunnel {
         return Promise.all(
             [
                 setDhcp("OpenVPN Data Channel Offload")
-                    .then(console.log)
+                    .then(res => !res.ok && console.log(res.message))
                     .catch(console.error),
                 setDhcp("OpenVPN Connect DCO Adapter")
-                    .then(console.log)
+                    .then(res => !res.ok && console.log(res.message))
                     .catch(console.error),
             ]
         );
