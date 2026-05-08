@@ -162,7 +162,7 @@ export default class OpenVpnTunnel {
                 config.openVpn.configFullPath,
                 "--auth-user-pass",
                 this.#authFilePath,
-                ...(config.openVpn.trafficUsage ? ["--status", this.#statusLogFilePath, "1"] : []),
+                ...(config.openVpn.trafficUsage ? ["--status", this.#statusLogFilePath, config.openVpn.trafficUsage.updateInterval.toString()] : []),
                 ...(config.openVpn.shaper ? ["--shaper", config.openVpn.shaper.toString()] : []),
             ]
         );

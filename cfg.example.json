@@ -9,7 +9,8 @@
         "showOutput": false,
         "trafficUsage": {
             "monitor": true,
-            "keepLog": true
+            "keepLog": true,
+            "updateInterval": 10
         }
     },
     "ssh": {

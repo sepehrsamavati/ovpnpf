@@ -58,6 +58,12 @@ function validateConfig(cfg) {
     assertObject(ov.trafficUsage, "openVpn.trafficUsage");
     assertBoolean(ov.trafficUsage.monitor, "openVpn.trafficUsage.monitor");
     assertBoolean(ov.trafficUsage.keepLog, "openVpn.trafficUsage.keepLog");
+    assertNumber(ov.trafficUsage.updateInterval, "openVpn.trafficUsage.updateInterval");
+
+    // small sanity checks
+    if (ov.trafficUsage.updateInterval < 1) {
+        throw new Error(`"openVpn.trafficUsage.updateInterval" cannot be lower than 1`);
+    }
 
     // ssh
     assertObject(cfg.ssh, "ssh");

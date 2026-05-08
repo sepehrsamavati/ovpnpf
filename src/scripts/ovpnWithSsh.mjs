@@ -74,7 +74,7 @@ const connectSsh = () => {
 
                     if (usage)
                         setConsoleTitle(title + " | " + usage.total);
-                }, 1e3);
+                }, config.openVpn.trafficUsage.updateInterval * 1e3);
         }
     });
 };

@@ -1,6 +1,8 @@
 export type ITrafficUsageConfig = {
     monitor: boolean;
     keepLog: boolean;
+    /** In seconds */
+    updateInterval: number;
 }
 
 export type IOpenVpnConfig = {
@@ -16,16 +18,13 @@ export type IOpenVpnConfig = {
      */
     shaper: number;
     showOutput: boolean;
-    trafficUsage: TrafficUsageConfig;
+    trafficUsage: ITrafficUsageConfig;
 }
 
 export type ISshConfig = {
     username: string;
     hostname: string;
     port: number;
-    /**
-     * Local forwarded port (0 = random)
-     */
     localPort: number;
     /**
      * Usually "0.0.0.0" or "127.0.0.1"
@@ -42,6 +41,6 @@ export type ISshConfig = {
 
 export type IAppConfig = {
     tempDir: string;
-    openVpn: OpenVpnConfig;
-    ssh: SshConfig;
+    openVpn: IOpenVpnConfig;
+    ssh: ISshConfig;
 }
