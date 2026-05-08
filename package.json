@@ -5,7 +5,8 @@
   "scripts": {
     "ovpn": "node ./src/scripts/ovpnWithSsh.mjs",
     "ssht": "node ./src/scripts/sshApp.mjs",
-    "usage": "node ./src/scripts/calculateOvpnUsage.mjs"
+    "usage": "node ./src/scripts/calculateOvpnUsage.mjs",
+    "clear": "node ./src/scripts/clearTemp.mjs"
   },
   "keywords": [],
   "author": "",
