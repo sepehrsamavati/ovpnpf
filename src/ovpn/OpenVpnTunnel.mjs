@@ -103,8 +103,9 @@ export default class OpenVpnTunnel {
     }
 
     #constructDate = Date.now();
+    #connectionNumber = 0;
     #authFilePath = path.join(config.tempDir, `ovpn-auth-${this.#constructDate}.txt`);
-    #statusLogFilePath = path.join(config.tempDir, `ovpn-status-${this.#constructDate}.log`);
+    #statusLogFilePath = "";
     #retryCount = 0;
     /** @type {import('node:child_process').ChildProcessWithoutNullStreams | null} */
     #vpnProcess = null;
@@ -143,6 +144,9 @@ export default class OpenVpnTunnel {
     }
 
     async startVPN() {
+        this.#connectionNumber++;
+        this.#statusLogFilePath = path.join(config.tempDir, `ovpn-status-${this.#constructDate}-${this.#connectionNumber}.log`);
+
         OpenVpnTunnel.logger.log(`🔄 Starting VPN (attempt ${this.#retryCount + 1})`);
 
         await OpenVpnTunnel.#resetDhcp();
