@@ -2,13 +2,14 @@
 
 import fs from 'fs';
 import path from 'path';
-import config, { addConfigChangeListener } from '../common/config.mjs';
+import process from "node:process";
 import { spawn } from 'child_process';
-import setDhcp from '../util/setDhcp.mjs';
+import setDhcp from "../util/setDhcp.mjs";
 import { generateCode } from '../util/otp.mjs';
 import formatBytes from '../util/formatBytes.mjs';
 import ConfigurableStdOut from '../common/ConfigurableStdOut.mjs';
 import consoleWithTimestamp from '../common/consoleWithTimestamp.mjs';
+import config, { addConfigChangeListener } from '../common/config.mjs';
 
 export default class OpenVpnTunnel {
     static MAX_RETRIES = 15;
@@ -17,17 +18,26 @@ export default class OpenVpnTunnel {
     static logger = consoleWithTimestamp;
     stdout = new ConfigurableStdOut().set(config.openVpn.showOutput);
 
-    static #resetDhcp() {
-        return Promise.all(
-            [
+    static async #resetDhcp() {
+
+        // Windows-specific recovery
+        if (process.platform === "win32") {
+
+            return Promise.all([
                 setDhcp("OpenVPN Data Channel Offload")
                     .then(res => !res.ok && console.log(res.message))
                     .catch(console.error),
+
                 setDhcp("OpenVPN Connect DCO Adapter")
                     .then(res => !res.ok && console.log(res.message))
                     .catch(console.error),
-            ]
-        );
+            ]);
+
+        }
+
+        // Linux/macOS:
+        // no-op
+        return Promise.resolve();
     }
 
     /**
@@ -195,6 +205,8 @@ export default class OpenVpnTunnel {
         });
 
         this.#vpnProcess.on("close", (code) => {
+            if (code === 0) return; // do not reconnect after clean exit.
+
             OpenVpnTunnel.logger.log(`⚠️ VPN exited with code: ${code}`);
             this.onDisconnected?.();
 
