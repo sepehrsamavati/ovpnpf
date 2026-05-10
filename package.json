@@ -6,7 +6,8 @@
     "ovpn": "node ./src/scripts/ovpnWithSsh.mjs",
     "ssht": "node ./src/scripts/sshApp.mjs",
     "usage": "node ./src/scripts/calculateOvpnUsage.mjs",
-    "clear": "node ./src/scripts/clearTemp.mjs"
+    "clear": "node ./src/scripts/clearTemp.mjs",
+    "setup": "npm i --omit=dev"
   },
   "keywords": [],
   "author": "",
