@@ -1,5 +1,6 @@
 {
     "tempDir": "./tmp",
+    "autoReconnect": 0,
     "openVpn": {
         "executablePath": "C:\\Program Files\\OpenVPN\\bin\\openvpn.exe",
         "username": "",

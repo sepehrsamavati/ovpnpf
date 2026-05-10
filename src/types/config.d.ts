@@ -41,6 +41,8 @@ export type ISshConfig = {
 
 export type IAppConfig = {
     tempDir: string;
+    /** In minutes; 0 as disabled */
+    autoReconnect: number;
     openVpn: IOpenVpnConfig;
     ssh: ISshConfig;
 }

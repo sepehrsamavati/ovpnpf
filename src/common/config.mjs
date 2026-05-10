@@ -19,6 +19,8 @@ function validateConfig(cfg) {
     // root
     assertString(cfg.tempDir, "tempDir");
 
+    assertNumber(cfg.autoReconnect, "autoReconnect");
+
     // openVpn
     assertObject(cfg.openVpn, "openVpn");
     const ov = cfg.openVpn;
@@ -106,8 +108,13 @@ const config = new Proxy(/** @type {IAppConfig} */({}), {
     get(_, prop) {
         return _config[/** @type {keyof IAppConfig} */ (prop)];
     },
+    /**
+      * @param {IAppConfig} _
+      * @param {keyof IAppConfig} prop
+      * @param {any} value
+      */
     set(_, prop, value) {
-        _config[/** @type {keyof IAppConfig} */ (prop)] = value;
+        /** @type {any} */ (_config)[prop] = value;
         return true;
     },
     has(_, prop) {
