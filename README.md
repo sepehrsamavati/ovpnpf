@@ -21,8 +21,8 @@ Simply;
 
 - 🔁 Auto reconnect on errors and exits
 - ⌛ Time-based auto reconnect option
-- 🔄️ Configurable logging
-- Config file hot-reload
+- 📃 Configurable logging
+- 🔄️ Config file hot-reload
 - 📱 Supports OTP code generate for OpenVPN password
 - 🥱 Supports Google OAuth migration
 - 📊 Stores OpenVPN status files (monitor traffic usage)
