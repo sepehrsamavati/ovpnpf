@@ -2,8 +2,8 @@ const { setTimeout } = require("node:timers");
 const { spawn } = require('node:child_process');
 const TunnelSession = require("./tunnelSession.cjs");
 const { parentPort } = require("node:worker_threads");
-const { default: config, addConfigChangeListener } = require('../../common/config.mjs');
 const { default: ConfigurableStdOut } = require("../../common/ConfigurableStdOut.mjs");
+const { default: config, addConfigChangeListener } = require('../../common/config.mjs');
 const { default: consoleWithTimestamp } = require("../../common/consoleWithTimestamp.mjs");
 
 let counter = 0;
@@ -22,14 +22,17 @@ class Tunnel {
 			this.stdout.set(config.ssh.showOutput);
 		});
 
-		process.on("SIGINT", () => {
-			if (this.cp)
-				this.cp.kill();
-		});
+		// process.on("SIGINT", () => {
+		// 	this.closing = true;
+		// 	this.reconnect = false;
+		// 	if (this.cp)
+		// 		this.cp.kill();
+		// });
 
 		this.#spawn();
 	}
 	stdout = new ConfigurableStdOut().set(config.ssh.showOutput);
+	closing = false;
 
 	#spawn() {
 		Tunnel.logger.log(`Spawning ${this.name} SSH...`);
@@ -57,10 +60,28 @@ class Tunnel {
 		cp.on('exit', (code) => {
 			Tunnel.logger.log(`❌ ${this.name} tunnel exited with code ${code ?? "KILL"}`);
 
-			if (code !== null && this.reconnect) {
+			if (!this.closing && code !== null && this.reconnect) {
 				setTimeout(() => this.#spawn(), config.ssh.retryDelay);
 			}
 		});
+	}
+
+	destroy() {
+		this.closing = true;
+
+		if (this.cp && !this.cp.killed) {
+			this.cp.removeAllListeners();
+
+			try {
+				this.cp.kill("SIGTERM");
+			} catch { }
+
+			setTimeout(() => {
+				try {
+					this.cp?.kill("SIGKILL");
+				} catch { }
+			}, 3000).unref();
+		}
 	}
 };
 

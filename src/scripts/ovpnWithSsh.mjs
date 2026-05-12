@@ -33,17 +33,25 @@ let sshThread = null,
     /** @type {OpenVpnTunnel | null} */
     ovpnTun = null;
 
-const closeSsh = () => {
+const closeSsh = async () => {
     isConnected = false;
     if (sshThread) {
         logger.info('ℹ️ Terminating previous SSH and continue...');
+
+        sshThread.postMessage("shutdown");
+
+        await new Promise(r => setTimeout(r, 1500));
+
+        await sshThread.terminate();
+
+        logger.info('ℹ️ SSH terminated ✅');
+
         sshThread.removeAllListeners();
-        sshThread.terminate().then(() => logger.info('ℹ️ SSH terminated ✅')).catch(() => null);
         sshThread = null;
     }
 };
-const connectSsh = () => {
-    closeSsh();
+const connectSsh = async () => {
+    await closeSsh();
 
     sshThread = new Worker(SSH_PATH);
 
@@ -80,7 +88,7 @@ const connectSsh = () => {
 };
 
 const connectOvpn = async () => {
-    closeSsh();
+    await closeSsh();
 
     if (ovpnTun) {
         ovpnTun.onDisconnected = null;
@@ -88,7 +96,7 @@ const connectOvpn = async () => {
         ovpnTun.terminateProcess();
         ovpnTun.dispose();
         logger.info('ℹ️ OVPN closed ✅');
-        await new Promise(r => setTimeout(r, 2e3));
+        await new Promise(r => setTimeout(r, 500));
     }
 
     ovpnTun ??= new OpenVpnTunnel({ autoRetry: false });
@@ -99,7 +107,6 @@ const connectOvpn = async () => {
     };
 
     ovpnTun.onDisconnected = () => {
-        closeSsh();
         setConsoleTitle("⚠️ OpenVPN disconnected 🔴");
         connectOvpn();
     };
