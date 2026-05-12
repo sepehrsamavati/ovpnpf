@@ -1,48 +1,159 @@
-// parseMigration.mjs
-import { Buffer } from 'buffer';
-import base32 from 'base32.js';
-import protobuf from 'protobufjs';
+// @ts-check
+
+// Credit: https://github.com/taharactrl/otpauth-migration-parser
+
+import path from "node:path";
+import { base32 } from "rfc4648";
+import protobuf from "protobufjs";
+import { fileURLToPath } from "node:url";
 
 /**
- * Convert Google Authenticator migration URI to a standard OTP URI
- *
- * @param {string} migrationUri
- * @returns {Promise<string[]>} - Array of `otpauth://` strings
+ * @typedef {{
+ * secret: ArrayLike<number>;
+ * name: string;
+ * issuer: string;
+ * algorithm: keyof typeof ALGORITHM;
+ * digits: keyof typeof DIGIT_COUNT;
+ * type: keyof typeof OTP_TYPE;
+ * counter: number;
+ * }} IOtpParameter
+ * 
+ * @typedef {{
+ *   secret: string;
+ *   name: string;
+ *   issuer: string;
+ *   algorithm: string;
+ *   digits: string | number;
+ *   type: string;
+ *   counter: number;
+ * }[]} DecodedItems
  */
-export async function parseMigrationUri(migrationUri) {
-    if (!migrationUri.startsWith('otpauth-migration://offline?data=')) {
-        throw new Error('Invalid migration URI');
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const ALGORITHM = {
+    0: "unspecified",
+    1: "sha1",
+    2: "sha256",
+    3: "sha512",
+    4: "md5",
+};
+
+const DIGIT_COUNT = {
+    0: "unspecified",
+    1: 6,
+    2: 8,
+};
+
+const OTP_TYPE = {
+    0: "unspecified",
+    1: "hotp",
+    2: "totp",
+};
+
+/**
+ * Load protobuf schema
+ *
+ * @param {string} protoFilePath
+ * @returns {Promise<protobuf.Root | undefined>}
+ */
+function protobufPromise(protoFilePath) {
+    return new Promise((resolve, reject) => {
+        protobuf.load(protoFilePath, (err, root) => {
+            if (err) {
+                return reject(err);
+            }
+
+            resolve(root);
+        });
+    });
+}
+
+/**
+ * 
+ * @param {DecodedItems} items 
+ */
+export function convertToOtpAuth(items) {
+    console.log(
+        items
+            .map(item => {
+                const url = new URL("otpauth://totp/" + encodeURIComponent(item.issuer + ":" + item.name));
+
+                url.searchParams.set("period", "30");
+                url.searchParams.set("digits", item.digits.toString());
+                url.searchParams.set("algorithm", item.algorithm);
+                url.searchParams.set("secret", item.secret);
+                url.searchParams.set("issuer", item.issuer);
+
+                return url.toString();
+            })
+    )
+}
+
+/**
+ * Parse Google Authenticator migration URI
+ *
+ * @param {string} sourceUrl
+ * @returns {Promise<DecodedItems>}
+ */
+export default async function parseMigrationUri(sourceUrl) {
+
+    if (typeof sourceUrl !== "string") {
+        throw new Error("source url must be a string");
     }
 
-    const base64Data = migrationUri.replace('otpauth-migration://offline?data=', '');
-    const buffer = Buffer.from(base64Data, 'base64');
+    if (!sourceUrl.startsWith("otpauth-migration://offline")) {
+        throw new Error(
+            "source url must begin with otpauth-migration://offline"
+        );
+    }
 
-    // Inline protobuf definition to avoid external file
-    const root = new protobuf.Root();
-    const OTPParameters = new protobuf.Type("OTPParameters")
-        .add(new protobuf.Field("secret", 1, "bytes"))
-        .add(new protobuf.Field("name", 2, "string"))
-        .add(new protobuf.Field("issuer", 3, "string"))
-        .add(new protobuf.Field("algorithm", 4, "int32"))
-        .add(new protobuf.Field("digits", 5, "int32"))
-        .add(new protobuf.Field("type", 6, "int32"));
+    const sourceData = new URL(sourceUrl).searchParams.get("data");
 
-    const MigrationPayload = new protobuf.Type("MigrationPayload")
-        .add(new protobuf.Field("otp_parameters", 1, "OTPParameters", "repeated"))
-        .add(new protobuf.Field("version", 2, "int32"));
+    if (!sourceData) {
+        throw new Error("source url doesn't contain otpauth data");
+    }
 
-    root.define("auth").add(OTPParameters).add(MigrationPayload);
+    const protobufRoot = await protobufPromise(
+        path.join(__dirname, "..", "..", "otpauth-migration.proto")
+    );
 
-    const MigrationType = root.lookupType("auth.MigrationPayload");
-    const decoded = MigrationType.decode(buffer);
+    if (!protobufRoot) {
+        throw new Error("Couldn't load protobuf");
+    }
 
-    const encoder = new base32.Encoder({ type: 'rfc4648', lc: true });
+    const migrationPayload =
+        protobufRoot.lookupType("MigrationPayload");
 
-    return decoded.otp_parameters.map((param) => {
-        const secret = encoder.write(param.secret).finalize();
-        const label = param.name;
-        const issuer = param.issuer || '';
-        return `otpauth://totp/${encodeURIComponent(label)}?secret=${secret}${issuer ? `&issuer=${encodeURIComponent(issuer)}` : ''
-            }`;
-    });
+    const normalized = sourceData
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+
+    const decodedOtpPayload = migrationPayload.decode(
+        Buffer.from(normalized, "base64")
+    );
+
+    // @ts-ignore
+    return decodedOtpPayload.otpParameters.map((/** @type {IOtpParameter} */ otpParameter) => ({
+        secret: base32.stringify(otpParameter.secret),
+
+        name: otpParameter.name,
+
+        issuer: otpParameter.issuer,
+
+        algorithm:
+            ALGORITHM[otpParameter.algorithm]
+            ?? "unknown",
+
+        digits:
+            DIGIT_COUNT[otpParameter.digits]
+            ?? "unknown",
+
+        type:
+            OTP_TYPE[otpParameter.type]
+            ?? "unknown",
+
+        counter: otpParameter.counter,
+    }));
 }
