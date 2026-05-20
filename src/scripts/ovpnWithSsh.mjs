@@ -125,20 +125,22 @@ const reconnect = () => {
 if (config.autoReconnect > 0.2)
     setInterval(reconnect, config.autoReconnect * 60e3).unref();
 
-process.stdin.setRawMode(true);
-process.stdin.resume();
-process.stdin.setEncoding('utf8');
+if (process.stdin.isTTY) {
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    process.stdin.setEncoding('utf8');
 
-process.stdin.on('data', (key) => {
-    // Ctrl + R
-    if (key === '\x12') {
-        reconnect();
-    }
+    process.stdin.on('data', (key) => {
+        // Ctrl + R
+        if (key === '\x12') {
+            reconnect();
+        }
 
-    // Ctrl + C
-    if (key === '\x03') {
-        process.exit();
-    }
-});
+        // Ctrl + C
+        if (key === '\x03') {
+            process.exit();
+        }
+    });
+}
 
 connectOvpn();
