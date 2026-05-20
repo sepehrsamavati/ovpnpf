@@ -1,1 +1,1 @@
-await import("../ssh/app.cjs");
+import "../ssh/app.mjs";

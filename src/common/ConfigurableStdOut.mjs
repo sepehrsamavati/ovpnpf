@@ -2,12 +2,12 @@
 
 export default class ConfigurableStdOut {
 
-    /** @type {?(data:string)=>void} */
+    /** @type {?(data: string | Buffer<ArrayBufferLike>)=>void} */
     #writer = null;
 
     /**
      * 
-     * @param {string} data 
+     * @param {string | Buffer<ArrayBufferLike>} data 
      */
     write(data) {
         this.#writer?.(data);

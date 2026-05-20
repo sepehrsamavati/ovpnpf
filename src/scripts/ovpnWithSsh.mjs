@@ -9,7 +9,7 @@ import consoleWithTimestamp from "../common/consoleWithTimestamp.mjs";
 
 const logger = consoleWithTimestamp;
 const __dirname = import.meta.dirname;
-const SSH_PATH = path.join(__dirname, "..", "ssh", "app.cjs");
+const SSH_PATH = path.join(__dirname, "..", "ssh", "app.mjs");
 
 /**
  * 
@@ -125,20 +125,22 @@ const reconnect = () => {
 if (config.autoReconnect > 0.2)
     setInterval(reconnect, config.autoReconnect * 60e3).unref();
 
-process.stdin.setRawMode(true);
-process.stdin.resume();
-process.stdin.setEncoding('utf8');
+if (process.stdin.isTTY) {
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    process.stdin.setEncoding('utf8');
 
-process.stdin.on('data', (key) => {
-    // Ctrl + R
-    if (key === '\x12') {
-        reconnect();
-    }
+    process.stdin.on('data', (key) => {
+        // Ctrl + R
+        if (key === '\x12') {
+            reconnect();
+        }
 
-    // Ctrl + C
-    if (key === '\x03') {
-        process.exit();
-    }
-});
+        // Ctrl + C
+        if (key === '\x03') {
+            process.exit();
+        }
+    });
+}
 
 connectOvpn();
