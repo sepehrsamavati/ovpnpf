@@ -2,6 +2,7 @@
 
 const { default: config } = require("../common/config.mjs");
 
+/** @type {import("./type").ISshTunnel[]} */
 const tunnels = [
 	{
 		name: "Bridge", // optional name for connection
@@ -11,14 +12,16 @@ const tunnels = [
 		aliveInterval: 20,
 		exitOnFail: true,
 		reconnect: true,
-		forward: { // use 'forwards' array for multiple forward
-			localPort: config.ssh.localPort,
-			remotePort: config.ssh.remotePort,
-			listen: config.ssh.localInterface, // optional
-			destinationAddress: config.ssh.destinationAddress,
-		},
 		verb: true,
-		disable: false // don't run this tunnel
+		disable: false, // don't run this tunnel
+		tunnels: {
+			forward: [{
+				localPort: config.ssh.localPort,
+				remotePort: config.ssh.remotePort,
+				listen: config.ssh.localInterface, // optional
+				destinationAddress: config.ssh.destinationAddress,
+			}]
+		},
 	}
 ];
 

@@ -1,7 +1,7 @@
 // @ts-check
 
 const tunnels = require("./tunnels.cjs");
-const Tunnel = require("./class/tunnel.cjs");
+// const Tunnel = require("./class/tunnel.cjs");
 const { parentPort } = require("node:worker_threads");
 
 const tunnelsRef = tunnels.filter(tunnel => !tunnel.disable).map(tunnel => new Tunnel(tunnel));
