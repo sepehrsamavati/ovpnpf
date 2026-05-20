@@ -16,8 +16,7 @@ export type ISshTunnel = {
     tunnels: {
         local?: IPortForwarding[];
         remote?: IPortForwarding[];
-        /** Port number */
-        dynamic?: IPortForwarding['localPort'][];
+        dynamic?: IPortForwarding[];
     };
     verb: boolean;
     disable: boolean;

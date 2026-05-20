@@ -21,7 +21,12 @@ const tunnels = [
 				listen: config.ssh.localInterface, // optional
 				destinationAddress: config.ssh.destinationAddress,
 			}],
-			dynamic: config.ssh.socks5Port ? [config.ssh.socks5Port] : undefined
+			dynamic: config.ssh.socks5Port ? [{
+				destinationAddress: "",
+				listen: config.ssh.localInterface,
+				localPort: config.ssh.socks5Port,
+				remotePort: 0,
+			}] : undefined
 		},
 	}
 ];

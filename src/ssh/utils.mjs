@@ -25,7 +25,8 @@ function createTunnelParam(tunnel, type) {
         }
         case 'dynamic': {
             if (!tunnel.localPort) throw new Error('Dynamic forwarding requires a port');
-            return `-D ${tunnel.localPort}`;
+            const listen = tunnel.listen ? `${tunnel.listen}:` : '';
+            return `-D ${listen}${tunnel.localPort}`;
         }
         default:
             throw new Error(`Invalid forward type: ${type}`);
@@ -55,7 +56,7 @@ export default function createSshParams({
 
     tunnels.local?.forEach(tunnel => params.push(createTunnelParam(tunnel, "local")));
     tunnels.remote?.forEach(tunnel => params.push(createTunnelParam(tunnel, "remote")));
-    tunnels.dynamic?.forEach(localPort => params.push(createTunnelParam({ destinationAddress: "", listen: "", remotePort: 0, localPort }, "dynamic")));
+    tunnels.dynamic?.forEach(tunnel => params.push(createTunnelParam(tunnel, "dynamic")));
 
     params.push(`${user ? `${user}@` : ''}${host}`);
 
