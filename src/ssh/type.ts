@@ -1,4 +1,4 @@
-export type IPortTunneling = {
+export type IPortForwarding = {
     localPort: number;
     remotePort: number;
     listen: string;
@@ -14,10 +14,10 @@ export type ISshTunnel = {
     exitOnFail: boolean;
     reconnect: boolean;
     tunnels: {
-        forward?: IPortTunneling[];
-        remote?: IPortTunneling[];
+        local?: IPortForwarding[];
+        remote?: IPortForwarding[];
         /** Port number */
-        dynamic?: IPortTunneling['localPort'][];
+        dynamic?: IPortForwarding['localPort'][];
     };
     verb: boolean;
     disable: boolean;

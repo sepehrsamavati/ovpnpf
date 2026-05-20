@@ -37,6 +37,7 @@ export type ISshConfig = {
      */
     retryDelay: number;
     showOutput: boolean;
+    socks5Port?: number;
 }
 
 export type IAppConfig = {

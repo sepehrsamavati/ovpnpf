@@ -1,12 +1,12 @@
 // @ts-check
 
 import { setTimeout } from 'node:timers';
+import createSshParams from './utils.mjs';
 import { spawn } from 'node:child_process';
 import { parentPort } from 'node:worker_threads';
 import ConfigurableStdOut from '../common/ConfigurableStdOut.mjs';
 import consoleWithTimestamp from '../common/consoleWithTimestamp.mjs';
 import config, { addConfigChangeListener } from '../common/config.mjs';
-import createSshParams from './utils.mjs';
 
 let counter = 0;
 
@@ -23,8 +23,8 @@ export default class Connection {
     /** @type {boolean} */
     closing = false;
 
-    /** @type {import('node:child_process').ChildProcessWithoutNullStreams} */
-    cp;
+    /** @type {import('node:child_process').ChildProcessWithoutNullStreams?} */
+    cp = null;
 
     /**
      * 
@@ -83,12 +83,12 @@ export default class Connection {
     #initEvents() {
         const cp = this.cp;
 
-        cp.stderr.setEncoding('utf8');
+        cp?.stderr.setEncoding('utf8');
 
-        cp.stderr.on('data', (data) => this.#logger(data));
-        cp.stdout.on('data', (data) => this.#logger(data));
+        cp?.stderr.on('data', (data) => this.#logger(data));
+        cp?.stdout.on('data', (data) => this.#logger(data));
 
-        cp.on('exit', (code) => {
+        cp?.on('exit', (code) => {
             Connection.logger.log(`❌ ${this.name} tunnel exited with code ${code ?? 'KILL'}`);
 
             if (!this.closing && code !== null && this.reconnect) {

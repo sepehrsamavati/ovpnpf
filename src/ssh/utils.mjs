@@ -4,7 +4,7 @@
  * Generates an SSH port forwarding or SOCKS5 parameter.
  * Only **one mode** is allowed per object: local, remote, or dynamic.
  *
- * @param {import("./type").IPortTunneling} tunnel Tunnel configuration
+ * @param {import("./type").IPortForwarding} tunnel Tunnel configuration
  * @param {'local'|'remote'|'dynamic'} type Type of forwarding
  */
 function createTunnelParam(tunnel, type) {
@@ -53,12 +53,9 @@ export default function createSshParams({
     if (verb) params.push('-v');
     if (aliveInterval) params.push(`-o ServerAliveInterval=${aliveInterval}`);
 
-    // Handle tunnels
-    tunnels.forward?.forEach(tunnel => {
-        params.push(
-            createTunnelParam(tunnel, "local")
-        );
-    });
+    tunnels.local?.forEach(tunnel => params.push(createTunnelParam(tunnel, "local")));
+    tunnels.remote?.forEach(tunnel => params.push(createTunnelParam(tunnel, "remote")));
+    tunnels.dynamic?.forEach(localPort => params.push(createTunnelParam({ destinationAddress: "", listen: "", remotePort: 0, localPort }, "dynamic")));
 
     params.push(`${user ? `${user}@` : ''}${host}`);
 

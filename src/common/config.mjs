@@ -81,6 +81,12 @@ function validateConfig(cfg) {
     assertNumber(ssh.retryDelay, "ssh.retryDelay");
     assertBoolean(ssh.showOutput, "ssh.showOutput");
 
+    if (ssh.socks5Port !== undefined) {
+        assertNumber(ssh.socks5Port, "ssh.socks5Port");
+        if (!isValidPort(ssh.socks5Port))
+            throw new Error(`Invalid "ssh.socks5Port"`);
+    }
+
     if (!isValidPort(ssh.port)) {
         throw new Error(`Invalid "ssh.port"`);
     }

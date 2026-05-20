@@ -23,6 +23,7 @@
         "destinationAddress": "",
         "remotePort": 0,
         "retryDelay": 1000,
-        "showOutput": false
+        "showOutput": false,
+        "socks5Port": 10801
     }
 }

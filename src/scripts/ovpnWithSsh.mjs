@@ -9,7 +9,7 @@ import consoleWithTimestamp from "../common/consoleWithTimestamp.mjs";
 
 const logger = consoleWithTimestamp;
 const __dirname = import.meta.dirname;
-const SSH_PATH = path.join(__dirname, "..", "ssh", "app.cjs");
+const SSH_PATH = path.join(__dirname, "..", "ssh", "app.mjs");
 
 /**
  * 

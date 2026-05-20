@@ -1,6 +1,6 @@
 // @ts-check
 
-const { default: config } = require("../common/config.mjs");
+import config from "../common/config.mjs";
 
 /** @type {import("./type").ISshTunnel[]} */
 const tunnels = [
@@ -15,14 +15,15 @@ const tunnels = [
 		verb: true,
 		disable: false, // don't run this tunnel
 		tunnels: {
-			forward: [{
+			local: [{
 				localPort: config.ssh.localPort,
 				remotePort: config.ssh.remotePort,
 				listen: config.ssh.localInterface, // optional
 				destinationAddress: config.ssh.destinationAddress,
-			}]
+			}],
+			dynamic: config.ssh.socks5Port ? [config.ssh.socks5Port] : undefined
 		},
 	}
 ];
 
-module.exports = tunnels;
+export default tunnels;
